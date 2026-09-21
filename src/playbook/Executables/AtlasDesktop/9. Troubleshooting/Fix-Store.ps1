@@ -216,8 +216,12 @@ if ($PromptOnFailure -and $script:FailureCount -gt 0) {
                     -Argument "-NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -File `"$prompt`""
                 $trigger = New-ScheduledTaskTrigger -AtLogOn
                 $set     = New-ScheduledTaskSettingsSet -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries
+                # Without an explicit principal the task inherits the registering identity, which
+                # here is TrustedInstaller/SYSTEM — the dialog would then open in a session the
+                # signed-in user never sees. Same pattern as Register-TaskbarPinsTask.ps1.
+                $principal = New-ScheduledTaskPrincipal -GroupId 'Users' -RunLevel Highest
                 Register-ScheduledTask -TaskName 'Atlas Store Repair Retry' -Action $action -Trigger $trigger `
-                    -Settings $set -RunLevel Highest -Force | Out-Null
+                    -Settings $set -Principal $principal -Force | Out-Null
                 Write-Host '  Store repair reported errors; a retry will be offered at next logon.' -ForegroundColor Yellow
             } catch {
                 Write-Warning "Could not schedule the Store repair retry: $($_.Exception.Message)"
