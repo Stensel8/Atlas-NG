@@ -100,6 +100,15 @@ actions:
     oobe: false
     wait: true
 
+  # Notifications were turned off at the start of the Playbook to keep random toasts from
+  # interfering with setup. Re-enable them here, after the default user hive is unloaded,
+  # so the change lands on the live user instead of the default profile.
+  - !powerShell:
+    command: '& """.\AtlasModules\Scripts\Helpers\Set-Notifications.ps1""" -Mode Enable'
+    exeDir: true
+    wait: true
+    runas: currentUserElevated
+
   # Set PowerShell execution policy to RemoteSigned from the previous "Unrestricted"
   # This allows Atlas folder scripts (local) to run while requiring signatures for downloaded scripts
   - !writeStatus: { status: "Securing PowerShell execution policy" }

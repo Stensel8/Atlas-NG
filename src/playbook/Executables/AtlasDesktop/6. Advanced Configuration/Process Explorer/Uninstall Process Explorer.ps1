@@ -32,6 +32,10 @@ Remove-ItemProperty -LiteralPath $ifeoKey -Name 'Debugger' -ErrorAction Silently
 $shortcutPath = Join-Path ([Environment]::GetFolderPath('CommonStartMenu')) 'Programs\Process Explorer.lnk'
 Remove-Item -LiteralPath $shortcutPath -Force -ErrorAction SilentlyContinue
 
+# Close Task Manager before probing it: a second launch just focuses the running instance,
+# which would make the check below pass even while the IFEO hijack is still in place.
+Stop-Process -Name 'taskmgr' -Force -ErrorAction SilentlyContinue
+
 & taskmgr.exe 2>$null | Out-Null
 if ($LASTEXITCODE -ne 0) {
     Write-Output 'Warning: Task Manager is still not working, applying fallback fix...'

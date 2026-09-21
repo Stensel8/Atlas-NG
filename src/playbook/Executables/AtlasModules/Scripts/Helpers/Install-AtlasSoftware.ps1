@@ -6,7 +6,8 @@ param (
     [switch]$LibreWolf,
     [switch]$Toolbox,
     [switch]$UniGetUI,
-    [switch]$DirectX
+    [switch]$DirectX,
+    [switch]$Eclean
 )
 
 $ErrorActionPreference = 'Stop'
@@ -144,8 +145,27 @@ function Install-AtlasToolbox {
     # Atlas Toolbox is not yet on winget, direct download from GitHub
     if ($env:PATH -like '*Atlas Toolbox*') { return }
     $toolboxPath = Join-Path -Path $script:TempDir -ChildPath 'toolbox.exe'
-    Invoke-AtlasDownload -Uri 'https://github.com/Atlas-OS/atlas-toolbox/releases/latest/download/AtlasToolbox-Setup.exe' -Destination $toolboxPath -Description 'Atlas Toolbox'
-    Start-AtlasInstaller -FilePath $toolboxPath -ArgumentList '/verysilent /install /MERGETASKS="desktopicon"' -Description 'Atlas Toolbox'
+    # A failed optional install must not abort the playbook run
+    try {
+        Invoke-AtlasDownload -Uri 'https://github.com/Atlas-OS/atlas-toolbox/releases/latest/download/AtlasToolbox-Setup.exe' -Destination $toolboxPath -Description 'Atlas Toolbox'
+        Start-AtlasInstaller -FilePath $toolboxPath -ArgumentList '/verysilent /install /MERGETASKS="desktopicon"' -Description 'Atlas Toolbox'
+    }
+    catch {
+        Write-Warning "Atlas Toolbox could not be installed, setup will continue: $($_.Exception.Message)"
+    }
+}
+
+function Install-Eclean {
+    # eclean is not on winget, direct download from the vendor
+    if ($env:PATH -like '*eclean*') { return }
+    $ecleanPath = Join-Path -Path $script:TempDir -ChildPath 'eclean-setup.exe'
+    try {
+        Invoke-AtlasDownload -Uri 'https://update.eclean.gg/windows/latest/eclean-latest_x64-setup.exe?source=atlas' -Destination $ecleanPath -Description 'eclean'
+        Start-AtlasInstaller -FilePath $ecleanPath -ArgumentList '/S' -Description 'eclean'
+    }
+    catch {
+        Write-Warning "eclean could not be installed, setup will continue: $($_.Exception.Message)"
+    }
 }
 
 function Install-BraveBrowser      { Invoke-WingetInstall -Id 'Brave.Brave'          -Description 'Brave Browser'   -MachineScope }
@@ -159,6 +179,7 @@ function Install-UniGetUI          { Invoke-WingetInstall -Id 'Devolutions.UniGe
 New-Item -ItemType Directory -Path $script:TempDir -Force | Out-Null
 try {
     if ($Toolbox)    { Install-AtlasToolbox;       return }
+    if ($Eclean)     { Install-Eclean;             return }
     if ($UniGetUI)   { Install-UniGetUI;           return }
     if ($DirectX)    { Install-DirectXRuntime;     return }
     if ($Brave)      { Install-BraveBrowser;       return }

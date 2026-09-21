@@ -14,17 +14,23 @@ Get-ChildItem -Path $registryPath | ForEach-Object {
 
     if ($null -eq $state -or $null -eq $path) { return }
 
-    if ($state.state -eq 1) {
-        $scriptPath = $path.path
-        if (Test-Path $scriptPath) {
-            Write-Host "Running: $scriptPath" -ForegroundColor Cyan
-            if ($scriptPath -like '*.ps1') {
-                & $scriptPath -Silent
-            } else {
-                & $scriptPath /silent
-            }
+    $scriptPath = $path.path
+
+    # A missing target means the setting's script was renamed or removed by an update;
+    # drop the stale key instead of failing every run from here on.
+    if (-not (Test-Path $scriptPath)) {
+        Write-Host "Script not found, cleaning up obsolete registry key: $scriptPath" -ForegroundColor Yellow
+        Remove-Item -Path $subkey.PSPath -Force -Recurse -ErrorAction SilentlyContinue
+        return
+    }
+
+    # Any non-zero state means the setting is active; 0 is the Windows default.
+    if ($state.state -ne 0) {
+        Write-Host "Running: $scriptPath" -ForegroundColor Cyan
+        if ($scriptPath -like '*.ps1') {
+            & $scriptPath -Silent
         } else {
-            Write-Host "Script not found: $scriptPath" -ForegroundColor Red
+            & $scriptPath /silent
         }
     }
 }
