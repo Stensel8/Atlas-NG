@@ -11,6 +11,8 @@ $activeArgs = @($PSBoundParameters.GetEnumerator() |
     ForEach-Object { "-$($_.Key)" })
 Assert-AtlasAdminPrivilege -ScriptPath $PSCommandPath -ScriptArgs $activeArgs
 
+Set-AtlasSettingState -SettingName 'TimerResolution' -State 0 -ScriptPath $PSCommandPath
+
 Show-AtlasServiceWarning -Silent:$Silent
 
 Remove-ItemProperty -LiteralPath 'HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\kernel' `

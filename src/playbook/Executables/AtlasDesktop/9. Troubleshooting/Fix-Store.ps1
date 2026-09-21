@@ -3,7 +3,11 @@
 # Two root causes addressed:
 #   1. StateRepository-Deployment.srd corruption — deleting it forces a clean rebuild on next AppX operation
 #   2. Store-essential services Disabled by debloat tools — promoted to Manual so Windows can trigger-start them
-param([switch]$Silent)
+param(
+    [switch]$Silent,
+    # On failure, ask the user to retry; under -Silent the prompt is deferred to next logon
+    [switch]$PromptOnFailure
+)
 
 $ErrorActionPreference = 'Stop'
 
@@ -37,7 +41,9 @@ function Write-Skipped ([string]$Detail = '') {
     $suffix = if ($Detail) { " skipped  ($Detail)" } else { ' skipped' }
     Write-Host $suffix -ForegroundColor DarkGray
 }
+$script:FailureCount = 0
 function Write-Failed ([string]$Detail = '') {
+    $script:FailureCount++
     $suffix = if ($Detail) { " failed  ($Detail)" } else { ' failed' }
     Write-Host $suffix -ForegroundColor Red
 }
@@ -167,9 +173,11 @@ if ($gsPkg) {
         if ($LASTEXITCODE -eq 0) {
             Write-Host '       OK  (reinstalled)' -ForegroundColor Green
         } else {
+            $script:FailureCount++
             Write-Host "       failed  (winget exit $LASTEXITCODE — install manually from the Store)" -ForegroundColor Red
         }
     } else {
+        $script:FailureCount++
         Write-Host '       failed  (winget unavailable — install Gaming Services manually from the Store)' -ForegroundColor Red
     }
 }
@@ -195,5 +203,29 @@ Write-Host '  restarting, please file a bug report at:' -ForegroundColor White
 Write-Host '  https://github.com/Atlas-OS/Atlas/issues' -ForegroundColor Cyan
 Write-Host '  -------------------------------------------------------' -ForegroundColor DarkGray
 Write-Host ''
+
+# --- Retry handling ---
+# A silent run happens during the playbook, as TrustedInstaller, with no desktop to
+# talk to: defer the retry offer to the next interactive logon instead of dropping it.
+if ($PromptOnFailure -and $script:FailureCount -gt 0) {
+    $prompt = Join-Path $env:windir 'AtlasModules\Scripts\ScriptWrappers\Show-StoreRepairPrompt.ps1'
+    if (Test-Path -LiteralPath $prompt -PathType Leaf) {
+        if ($Silent) {
+            try {
+                $action  = New-ScheduledTaskAction -Execute 'powershell.exe' `
+                    -Argument "-NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -File `"$prompt`""
+                $trigger = New-ScheduledTaskTrigger -AtLogOn
+                $set     = New-ScheduledTaskSettingsSet -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries
+                Register-ScheduledTask -TaskName 'Atlas Store Repair Retry' -Action $action -Trigger $trigger `
+                    -Settings $set -RunLevel Highest -Force | Out-Null
+                Write-Host '  Store repair reported errors; a retry will be offered at next logon.' -ForegroundColor Yellow
+            } catch {
+                Write-Warning "Could not schedule the Store repair retry: $($_.Exception.Message)"
+            }
+        } else {
+            & $prompt
+        }
+    }
+}
 
 if (-not $Silent) { $null = Read-Host 'Press Enter to exit' }

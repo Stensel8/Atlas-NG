@@ -28,7 +28,8 @@ New-ItemProperty -LiteralPath $polExp  -Name 'NoRecentDocsHistory'        -Value
 New-ItemProperty -LiteralPath $polExpW -Name 'NoRemoteDestinations'       -Value 1 -PropertyType DWord -Force | Out-Null
 New-ItemProperty -LiteralPath $polSys  -Name 'NoStartMenuMFUprogramsList' -Value 1 -PropertyType DWord -Force | Out-Null
 New-ItemProperty -LiteralPath $polSys  -Name 'NoRecentDocsHistory'        -Value 1 -PropertyType DWord -Force | Out-Null
-New-ItemProperty -LiteralPath $polSysW -Name 'ShowOrHideMostUsedApps'     -Value 1 -PropertyType DWord -Force | Out-Null
+# 2 = force off; 1 forces the list ON, which is the opposite of what this script is for
+New-ItemProperty -LiteralPath $polSysW -Name 'ShowOrHideMostUsedApps'     -Value 2 -PropertyType DWord -Force | Out-Null
 New-ItemProperty -LiteralPath $polSysW -Name 'HideRecentlyAddedApps'      -Value 1 -PropertyType DWord -Force | Out-Null
 New-ItemProperty -LiteralPath $adv     -Name 'Start_TrackProgs'           -Value 0 -PropertyType DWord -Force | Out-Null
 New-ItemProperty -LiteralPath $adv     -Name 'Start_TrackDocs'            -Value 0 -PropertyType DWord -Force | Out-Null

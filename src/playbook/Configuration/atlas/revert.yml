@@ -6,7 +6,9 @@ onUpgrade: true
 actions:
   - !writeStatus: { status: "Reverting old changes" }
   - !powerShell:
-    command: '& (Join-Path $env:windir "AtlasDesktop\9. Troubleshooting\Fix-Store.ps1") -Silent'
+    # -PromptOnFailure mirrors upstream's isSetScheduledTaskOnCrash: a silent repair
+    # has no desktop to report to, so a failure schedules a retry offer at next logon.
+    command: '& (Join-Path $env:windir "AtlasDesktop\9. Troubleshooting\Fix-Store.ps1") -Silent -PromptOnFailure'
     weight: 2
     wait: true
     onUpgrade: true

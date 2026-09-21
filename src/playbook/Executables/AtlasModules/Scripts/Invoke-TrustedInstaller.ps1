@@ -1,8 +1,32 @@
+# MIT License
+#
+# Copyright (c) 2021 AveYo
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
 <#
 .SYNOPSIS
     Elevates a program to TrustedInstaller context.
 .NOTES
-    Adapted from https://github.com/AveYo/LeanAndMean
+    Adapted from https://github.com/AveYo/LeanAndMean, MIT licensed (notice above).
+    The embedded snippet tracks upstream commit b0782ef:
+    https://github.com/AveYo/LeanAndMean/tree/b0782ef281d64a3dda086de7bada1c02decc7cf9
     Revised and customized for Atlas by he3als and Xyueta.
     Usage: Invoke-TrustedInstaller.ps1 "<executable>" [args]
 

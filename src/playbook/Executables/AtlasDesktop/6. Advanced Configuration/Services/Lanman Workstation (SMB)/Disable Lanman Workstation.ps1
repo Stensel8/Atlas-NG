@@ -23,7 +23,11 @@ Set-AtlasServiceStartup -Name 'mrxsmb20'          -Start 4
 Set-AtlasServiceStartup -Name 'rdbss'             -Start 3
 Set-AtlasServiceStartup -Name 'srv2'              -Start 4
 
-& dism.exe /Online /Disable-Feature /FeatureName:'SmbDirect' /NoRestart 2>&1 | Out-Null
+# SmbDirect is absent on some editions; DISM errors out instead of no-opping there
+& dism.exe /Online /Get-FeatureInfo /FeatureName:'SmbDirect' 2>&1 | Out-Null
+if ($LASTEXITCODE -eq 0) {
+    & dism.exe /Online /Disable-Feature /FeatureName:'SmbDirect' /NoRestart 2>&1 | Out-Null
+}
 
 if ($Silent) { return }
 Write-Output ''
