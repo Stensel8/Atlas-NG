@@ -22,11 +22,12 @@ try {
 
     Invoke-AtlasSettingsPage -Operation unhide -Page 'privacy-location'
 
-    $enableFMD = $false
-    if (-not $Silent) {
-        $choice = Read-Host 'Would you like to enable Find My Device? [Y/N]'
-        $enableFMD = $choice -match '^[Yy]'
-    }
+    # A silent run is the playbook applying defaults: leave Find My Device untouched
+    # rather than silently opting the user out of it.
+    if ($Silent) { return }
+
+    $choice = Read-Host 'Would you like to enable Find My Device? [Y/N]'
+    $enableFMD = $choice -match '^[Yy]'
 
     if ($enableFMD) {
         Write-Host '[>>] Enabling Find My Device...' -ForegroundColor Yellow

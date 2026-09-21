@@ -76,7 +76,7 @@ function Show-Menu {
 
         # Documentation
         3 {
-            Start-Process "https://docs.atlasos.net/getting-started/post-installation/atlas-folder/security/#defender"
+            Start-Process "https://atlasos.net/docs/atlas-configuration/security/#defender"
             Show-Menu
         }
 

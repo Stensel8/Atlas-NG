@@ -6,7 +6,8 @@ param (
     [switch]$LibreWolf,
     [switch]$Toolbox,
     [switch]$UniGetUI,
-    [switch]$DirectX
+    [switch]$DirectX,
+    [switch]$Eclean
 )
 $ErrorActionPreference = 'Stop'
 

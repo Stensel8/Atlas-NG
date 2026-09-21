@@ -8,7 +8,11 @@ param (
     [Parameter(Position = 1, Mandatory = $true)]
     [string]$Page,
 
-    [switch]$Silent
+    [switch]$Silent,
+
+    # Callers still using the legacy .cmd calling convention pass a bare /silent
+    [Parameter(ValueFromRemainingArguments = $true)]
+    [string[]]$RemainingArgs
 )
 
 $ErrorActionPreference = 'Stop'
@@ -25,7 +29,7 @@ if (-not (Test-IsAdministrator)) {
 }
 
 $normalizedOperation = $Operation.TrimStart('/').ToLowerInvariant()
-$isSilent = $Silent.IsPresent
+$isSilent = $Silent.IsPresent -or ($null -ne $RemainingArgs -and ($RemainingArgs -contains '/silent' -or $RemainingArgs -contains '-silent'))
 $pageKey = 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Explorer'
 
 if (-not (Test-Path -LiteralPath $pageKey)) {

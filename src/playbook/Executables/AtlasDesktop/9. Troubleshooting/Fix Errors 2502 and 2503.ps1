@@ -1,10 +1,13 @@
 #Requires -Version 5.1
+param([switch]$Silent)
 
 $ErrorActionPreference = 'Stop'
 
 Import-Module -Name (Join-Path $env:windir 'AtlasModules\Scripts\Modules\Atlas.Core\Atlas.Core.psd1') -Force
 
-$activeArgs = @()
+$activeArgs = @($PSBoundParameters.GetEnumerator() |
+    Where-Object { $_.Value -is [switch] -and $_.Value.IsPresent } |
+    ForEach-Object { "-$($_.Key)" })
 Assert-AtlasAdminPrivilege -ScriptPath $PSCommandPath -ScriptArgs $activeArgs
 
 $folder = Join-Path $env:windir 'Temp'
@@ -12,7 +15,7 @@ $folder = Join-Path $env:windir 'Temp'
 Write-Host 'This script fixes errors 2502 and 2503 with Windows installers by resetting TEMP folder permissions.' -ForegroundColor White
 Write-Host 'This issue is not related to Atlas.' -ForegroundColor DarkGray
 Write-Host ''
-$null = Read-Host 'Press Enter to continue'
+if (-not $Silent) { $null = Read-Host 'Press Enter to continue' }
 Write-Host ''
 
 try {
@@ -38,7 +41,7 @@ try {
 
     Write-Host ''
     Write-Host '[OK] Completed.' -ForegroundColor Green
-    $null = Read-Host 'Press Enter to exit'
+    if (-not $Silent) { $null = Read-Host 'Press Enter to exit' }
 } catch {
     Write-Host "[!!] Failed: $_" -ForegroundColor Red
     exit 1

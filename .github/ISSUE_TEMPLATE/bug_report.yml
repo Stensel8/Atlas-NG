@@ -15,7 +15,7 @@ body:
       required: true
     - label: "I have searched our [issue tracker](https://github.com/Atlas-OS/Atlas/issues?q=is%3Aissue) to verify that the issue hasn't been reported already"
       required: true
-    - label: "I have searched the [Atlas documentation](https://docs.atlasos.net) beforehand for a solution"
+    - label: "I have searched the [Atlas documentation](https://atlasos.net/docs/) beforehand for a solution"
       required: true
     - label: "I am on the latest version of Atlas, and didn't do an unsupported upgrade"
       required: true

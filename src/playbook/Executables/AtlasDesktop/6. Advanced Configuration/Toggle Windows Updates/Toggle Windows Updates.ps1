@@ -20,12 +20,23 @@ $isDisabled = $wuSvc -and $wuSvc.StartType -eq 'Disabled'
 $currentLabel = if ($isDisabled) { ' (current)' } else { '' }
 $enableLabel  = if (-not $isDisabled) { ' (current)' } else { '' }
 
-$choice = $Host.UI.PromptForChoice(
-    'Windows Update Toggle',
-    '',
-    @("1. Disable Windows Updates$currentLabel", "2. Enable Windows Updates$enableLabel"),
-    -1
-)
+if ($Silent) {
+    # A silent run re-applies whatever the user already chose; with no stored choice
+    # there is nothing to apply, so leave Windows Update exactly as it is.
+    $storedState = (Get-ItemProperty -LiteralPath $stateKey -Name 'state' -ErrorAction SilentlyContinue).state
+    switch ($storedState) {
+        0       { $choice = 0 }
+        1       { $choice = 1 }
+        default { return }
+    }
+} else {
+    $choice = $Host.UI.PromptForChoice(
+        'Windows Update Toggle',
+        '',
+        @("1. Disable Windows Updates$currentLabel", "2. Enable Windows Updates$enableLabel"),
+        -1
+    )
+}
 
 if ($choice -eq 0) {
     Write-Output 'Disabling Windows Update service and scheduled tasks...'
@@ -98,6 +109,8 @@ if ($choice -eq 0) {
 
     Write-Output 'Windows Updates have been enabled.'
 }
+
+if ($Silent) { return }
 
 Write-Output ''
 $reboot = $Host.UI.PromptForChoice('', 'Would you like to reboot now to apply changes?', @('&Yes', '&No'), 1)

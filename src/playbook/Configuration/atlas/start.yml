@@ -52,8 +52,8 @@ actions:
   - !run: {exe: 'DISM.exe', args: '/Online /Enable-Feature /FeatureName:LegacyComponents /NoRestart', weight: 30, option: 'legacy-directplay', ignoreErrors: true}
   - !run: {exe: 'DISM.exe', args: '/Online /Enable-Feature /FeatureName:DirectPlay /NoRestart', weight: 30, option: 'legacy-directplay', ignoreErrors: true}
 
-    #Toolbox
-  - !writeStatus: {status: 'Installing AtlasOS Toolbox'}
+    # Toolbox
+  - !writeStatus: {status: 'Installing AtlasOS Toolbox', option: 'install-toolbox'}
   - !powerShell:
     command: '.\Install-AtlasSoftware.ps1 -Toolbox'
     exeDir: true
@@ -62,7 +62,17 @@ actions:
     option: 'install-toolbox'
     runas: currentUserElevated
 
-    #UniGetUI
+    # eclean
+  - !writeStatus: {status: 'Installing eclean', option: 'install-eclean'}
+  - !powerShell:
+    command: '.\Install-AtlasSoftware.ps1 -Eclean'
+    exeDir: true
+    wait: true
+    weight: 100
+    option: 'install-eclean'
+    runas: currentUserElevated
+
+    # UniGetUI
   - !writeStatus: {status: 'Installing UniGetUI', option: 'install-unigetui'}
   - !powerShell:
     command: '.\Install-AtlasSoftware.ps1 -UniGetUI'
